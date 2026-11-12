@@ -1,4 +1,7 @@
-// Passo 1: mixin Mobile First: estilos base = telemóvel; acrescenta a partir de cada largura
+// Passo 1: mixin Mobile First: estilos base = telemóvel
 @mixin a-partir-de($bp) {
+  @if not map-has-key($breakpoints, $bp) {
+    @error "Breakpoint desconhecido: #{$bp}. Use md, lg ou xl.";
+  }
   @media (min-width: map-get($breakpoints, $bp)) { @content; }
 }
