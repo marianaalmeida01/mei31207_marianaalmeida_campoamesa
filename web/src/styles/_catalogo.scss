@@ -1,4 +1,4 @@
-/Pagina Principal
+//Pagina Principal
 .destaque {
   display: grid;
   gap: 1.5rem;
@@ -23,7 +23,7 @@
   p { max-width: 46ch; }
 }
 
-/Cartao Leilao
+//Cartao Leilao
 .leilao-destaque {
   background: $verde-escuro;
   color: #f7f1f1;
@@ -61,32 +61,30 @@
   }
 }
 
-
-.grelha-produtos {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr;                 // telemóvel
-  @include a-partir-de(md) { grid-template-columns: repeat(2, 1fr); }
-  @include a-partir-de(lg) { grid-template-columns: repeat(3, 1fr); }
-  @include a-partir-de(xl) { grid-template-columns: repeat(4, 1fr); }
-}
-
-.cartao-produto {
-  border-color: $linha;
-  overflow: hidden;
-
-  &__imagem { height: 160px; background: rgba($verde, .12); }
-  .preco { color: $verde; font-weight: 700; font-size: 1.15rem; }
-  .etiqueta-bio {
-    align-self: flex-start;
-    font-size: .7rem; font-weight: 700;
-    padding: .15rem .5rem; margin-bottom: .5rem;
-    border-radius: .35rem;
-    background: rgba($verde, .12); color: $verde-escuro;
-  }
-}
-
+// Filtros telemovel: coluna única, a partir de lg: linha
 .filtros {
-  display: flex; flex-direction: column; gap: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
   @include a-partir-de(lg) { flex-direction: row; align-items: center; }
+}
+
+
+// Categorias
+.chips {
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: -.75rem;
+  padding: 0 .75rem .25rem;
+
+  .btn { white-space: nowrap; border-radius: 999px; }
+
+  @include a-partir-de(md) {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
 }
