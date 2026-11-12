@@ -1,6 +1,14 @@
 // Componente reutilizável: cartão de produto do catálogo
-const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' }); // Formata um número como moeda em euros 
 
+// Hortícolas, fruta, carne, peixe, laticínios, bebidas, mercearia, padaria, outros
+const slug = (texto = '') => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+
+
+
+
+/// Rever
 export default function CartaoProduto({ produto, onAdicionar }) {
   return (
     <article className="card cartao-produto h-100">
