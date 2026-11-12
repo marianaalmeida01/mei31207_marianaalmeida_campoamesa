@@ -1,5 +1,8 @@
 // Componente reutilizável: cartão de produto do catálogo
-const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' }); // Formata um número como moeda em euros 
+import { Link } from 'react-router-dom';
+import { idDoProdutor } from '../data/simulados.js';
+
+const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
 // Hortícolas, fruta, carne, peixe, laticínios, bebidas, mercearia, padaria, outros
 const slug = (texto = '') => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -7,6 +10,8 @@ const slug = (texto = '') => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, 
 export default function CartaoProduto({ produto, onAdicionar }) {
   const etiqueta = produto.etiqueta ?? (produto.biologico ? 'Bio' : null);
   const localidade = produto.produtor?.produtor?.localidade;
+  // Com a API real o produtor terá _id; com os dados simulados usamos o nome
+  const produtorId = produto.produtor?._id ?? idDoProdutor(produto.produtor?.nome);
 
   return (
     <article className="card cartao-produto h-100">
@@ -18,7 +23,8 @@ export default function CartaoProduto({ produto, onAdicionar }) {
       <div className="card-body d-flex flex-column">
         <h3 className="h6 mb-1">{produto.nome}</h3>
         <p className="texto-secundario small mb-2">
-          {produto.produtor?.nome}{localidade && ` · ${localidade}`}
+          <Link to={`/produtores/${produtorId}`} className="link-secondary">{produto.produtor?.nome}</Link>
+          {localidade && ` · ${localidade}`}
         </p>
 
         <div className="d-flex justify-content-between align-items-baseline mt-auto">

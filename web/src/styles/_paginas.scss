@@ -1,0 +1,33 @@
+// Estilos das páginas (Mobile First)
+
+// Lista de leilões: 1 coluna no telemóvel, 2 a partir de md, 3 a partir de xl
+.grelha-leiloes {
+  display: grid;
+  gap: 1rem;
+  @include a-partir-de(md) { grid-template-columns: repeat(2, 1fr); }
+  @include a-partir-de(xl) { grid-template-columns: repeat(3, 1fr); }
+}
+
+// Página do produtor: texto e mapa empilhados no telemóvel, lado a lado a partir de lg
+.perfil-produtor {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @include a-partir-de(lg) {
+    grid-template-columns: 1fr 24rem;
+    align-items: start;
+  }
+
+  &__mapa {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 1px solid $linha;
+    border-radius: $border-radius;
+  }
+}
+
+.avaliacao-media {
+  font-weight: 600;
+  &::before { content: "★ "; color: $estrela; }
+}
