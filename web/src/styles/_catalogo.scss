@@ -1,3 +1,67 @@
+/Pagina Principal
+.destaque {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @include a-partir-de(lg) {
+    grid-template-columns: 1fr 24rem;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  &__regiao { color: $terracota; font-size: .8rem; font-weight: 600; margin-bottom: .5rem; }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+    max-width: 16ch;
+    @include a-partir-de(md) { font-size: 2.5rem; }
+    @include a-partir-de(xl) { font-size: 3rem; }
+  }
+
+  p { max-width: 46ch; }
+}
+
+/Cartao Leilao
+.leilao-destaque {
+  background: $verde-escuro;
+  color: #f7f1f1;
+  border-radius: 1rem;
+  padding: 1.25rem;
+
+  &__estado {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .75rem;
+    font-weight: 600;
+
+    &::before {
+      content: "";
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      background: $vermelho-direto;
+    }
+  }
+
+  &__lote { font-size: 1.35rem; margin: .6rem 0 .25rem; }
+  &__origem { font-size: .8rem; opacity: .75; }
+
+  &__numeros {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+    margin: 1rem 0;
+
+    > div { background: rgba(#fff, .08); border-radius: .6rem; padding: .6rem .75rem; }
+    dt { font-size: .7rem; font-weight: 400; opacity: .7; }
+    dd { margin: 0; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  }
+}
+
+
 .grelha-produtos {
   display: grid;
   gap: 1rem;
