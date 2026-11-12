@@ -3,6 +3,11 @@
 @import 'bootstrap/scss/bootstrap';
 @import 'mixins';
 @import 'catalogo';
+@import 'base';
+@import 'navegacao';
+@import 'catalogo';
+@import 'componentes';
+
 
 .barra-topo { background: #fff; border-bottom: 1px solid $linha; }
 .marca { font-family: Georgia, serif; font-weight: 700; color: $tinta; }
