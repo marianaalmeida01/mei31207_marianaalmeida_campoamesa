@@ -1,6 +1,7 @@
 // Passo 2: routing no cliente
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
+import BarraInferior from './components/BarraInferior.jsx';
 import RotaProtegida from './components/RotaProtegida.jsx';
 import Catalogo from './pages/Catalogo.jsx';
 import Produtor from './pages/Produtor.jsx';
@@ -19,7 +20,7 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <main className="container-xl py-4">
+      <main id="conteudo" className="container-xl py-4 com-barra-inferior">
         <Routes>
           {/* Visitante */}
           <Route path="/" element={<Catalogo />} />
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="*" element={<NaoEncontrado />} />
         </Routes>
       </main>
+      <BarraInferior />
     </>
   );
 }
