@@ -10,7 +10,7 @@ export default function Navbar() {
     <header className="barra-topo">
       <nav className="navbar navbar-expand-lg" aria-label="Navegação principal">
         <div className="container-xl">
-          <Link to="/" className="navbar-brand marca">Do Campo à Mesa</Link>
+          <Link to="/" className="navbar-brand marca">Do Campo à Tua Mesa</Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Abrir menu">
             <span className="navbar-toggler-icon" />
