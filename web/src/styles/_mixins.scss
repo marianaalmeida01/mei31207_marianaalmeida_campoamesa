@@ -5,3 +5,22 @@
   }
   @media (min-width: map-get($breakpoints, $bp)) { @content; }
 }
+
+// Pequena etiqueta sobre a imagem do produto 
+@mixin etiqueta($fundo: #fff, $cor: $tinta) {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: .35rem;
+  font-size: .7rem;
+  font-weight: 700;
+  background: $fundo;
+  color: $cor;
+}
+
+// Contorno visível para quem navega com o teclado (acessibilidade)
+@mixin foco-visivel {
+  &:focus-visible {
+    outline: 3px solid rgba($verde, .45);
+    outline-offset: 2px;
+  }
+}
