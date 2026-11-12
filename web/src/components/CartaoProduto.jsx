@@ -4,6 +4,10 @@ const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EU
 // Hortícolas, fruta, carne, peixe, laticínios, bebidas, mercearia, padaria, outros
 const slug = (texto = '') => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
+export default function CartaoProduto({ produto, onAdicionar }) {
+  const etiqueta = produto.etiqueta ?? (produto.biologico ? 'Bio' : null);
+  const localidade = produto.produtor?.produtor?.localidade;
+
 
 
 
