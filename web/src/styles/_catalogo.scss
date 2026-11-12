@@ -69,7 +69,6 @@
   @include a-partir-de(lg) { flex-direction: row; align-items: center; }
 }
 
-
 // Categorias
 .chips {
   display: flex;
@@ -86,5 +85,49 @@
     overflow: visible;
     margin-inline: 0;
     padding: 0;
+  }
+}
+
+// Grelha de produtos: 1 / 2 / 3 / 4 colunas
+.grelha-produtos {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  @include a-partir-de(md) { grid-template-columns: repeat(2, 1fr); }
+  @include a-partir-de(lg) { grid-template-columns: repeat(3, 1fr); }
+  @include a-partir-de(xl) { grid-template-columns: repeat(4, 1fr); }
+}
+
+// Cartao de produto
+.cartao-produto {
+  border-color: $linha;
+  overflow: hidden;
+
+  &__imagem {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: rgba($verde, .12);
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  // Gera .cartao-produto__imagem--fruta, --mel, … a partir do mapa $tons-categoria
+  @each $categoria, $tom in $tons-categoria {
+    &__imagem--#{$categoria} { background: $tom; }
+  }
+
+  &__etiqueta {
+    @include etiqueta;
+    position: absolute;
+    top: .5rem;
+    left: .5rem;
+  }
+
+  .preco { color: $verde; font-weight: 700; font-size: 1.15rem; }
+
+  &__avaliacao {
+    font-size: .8rem;
+    font-weight: 600;
+    &::before { content: "★ "; color: $estrela; }
   }
 }
