@@ -31,3 +31,53 @@
   font-weight: 600;
   &::before { content: "★ "; color: $estrela; }
 }
+
+// Carrinho: lista e resumo empilhados no telemóvel
+.pagina-carrinho {
+  display: grid;
+  gap: 1.5rem;
+  @include a-partir-de(lg) {
+    grid-template-columns: 1fr 22rem;
+    align-items: start;
+  }
+}
+
+// Encomendas: 1 coluna no telemóvel, 2 a partir de lg
+.lista-encomendas {
+  display: grid;
+  gap: 1rem;
+  @include a-partir-de(lg) { grid-template-columns: repeat(2, 1fr); }
+}
+
+// Sala de leilão
+.sala-leilao__imagem {
+  aspect-ratio: 16 / 9;
+  border-radius: $border-radius;
+  background: map-get($tons-categoria, fruta);
+}
+
+// No computador, o painel de licitar acompanha o scroll
+.sala-leilao__painel {
+  @include a-partir-de(lg) { position: sticky; top: 5rem; }
+}
+
+.historico__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid $linha;
+
+  span:first-child { flex: 1; }
+  &--atual strong { color: $verde; }
+}
+
+// Indicadores do painel: empilhados no telemóvel, 3 lado a lado a partir de md
+.indicadores {
+  display: grid;
+  gap: 1rem;
+  @include a-partir-de(md) { grid-template-columns: repeat(3, 1fr); }
+
+  &__valor { font-size: 1.6rem; font-weight: 700; margin: 0; }
+}

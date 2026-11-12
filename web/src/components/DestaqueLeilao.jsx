@@ -1,30 +1,8 @@
-// Cartão do leilão 
-import { useEffect, useState } from 'react';
+// Cartão do leilão em direto (página inicial e lista de leilões)
 import { Link } from 'react-router-dom';
+import { useTempoRestante, formatar } from '../hooks/useTempoRestante.js';
 
 const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
-
-// O servidor só envia terminaEm; cada cliente calcula o tempo restante
-function useTempoRestante(terminaEm) {
-  const calcular = () => Math.max(0, new Date(terminaEm) - Date.now());
-  const [ms, setMs] = useState(calcular);
-
-  useEffect(() => {
-    setMs(calcular());
-    const intervalo = setInterval(() => setMs(calcular()), 1000);
-    return () => clearInterval(intervalo);
-  }, [terminaEm]);
-
-  return ms;
-}
-
-function formatar(ms) {
-  const total = Math.ceil(ms / 1000);
-  const h = Math.floor(total / 3600);
-  const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
-  const s = String(total % 60).padStart(2, '0');
-  return h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
-}
 
 export default function DestaqueLeilao({ leilao }) {
   const ms = useTempoRestante(leilao.terminaEm);

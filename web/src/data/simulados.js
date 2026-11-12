@@ -1,5 +1,4 @@
 // Dados simulados ate API
-
 // Data a X minutos de agora (para a contagem decrescente dos leilões)
 const daqui = (minutos) => new Date(Date.now() + minutos * 60 * 1000).toISOString();
 
@@ -35,4 +34,53 @@ export const produtores = [
   { _id: 'souto-da-serra', nome: 'Souto da Serra', localidade: 'Paredes de Coura', lat: 41.912, lng: -8.561, desde: 2011, avaliacao: 4.7, numAvaliacoes: 33,
     descricao: 'Soutos de castanheiro centenários. Castanha longal apanhada à mão.',
     metodos: ['Entrega ao domicílio'] },
+];
+
+// Contas de teste (as mesmas do seed da API). Password de todas: password123
+export const utilizadores = [
+  { _id: 'c1', nome: 'Tasca do Largo', email: 'tasca@exemplo.pt', papel: 'comprador' },
+  { _id: 'horta-da-ribeira', nome: 'Horta da Ribeira', email: 'horta@exemplo.pt', papel: 'produtor' },
+  { _id: 'a1', nome: 'Administração', email: 'admin@exemplo.pt', papel: 'admin' },
+];
+
+// Encomendas de exemplo do comprador
+export const encomendasExemplo = [
+  { _id: 'E-1042', produtor: 'Horta da Ribeira', data: '2026-11-10', estado: 'pronta', metodo: 'levantamento',
+    linhas: [{ nome: 'Kiwi Hayward', quantidade: 3, preco: 2.4 }, { nome: 'Abóbora-menina', quantidade: 2, preco: 1.2 }] },
+  { _id: 'E-1037', produtor: 'Mel do Soajo', data: '2026-11-06', estado: 'entregue', metodo: 'entrega',
+    linhas: [{ nome: 'Mel de urze', quantidade: 2, preco: 7.5 }] },
+];
+
+// Lê as encomendas feitas no carrinho (guardadas no browser)
+export function lerEncomendasSimuladas() {
+  try { return JSON.parse(localStorage.getItem('encomendas-simuladas')) || []; } catch { return []; }
+}
+
+// Guarda as encomendas do carrinho: uma encomenda por produtor
+export function guardarEncomendasSimuladas(linhas, metodo) {
+  const porProdutor = {};
+  for (const { produto, quantidade } of linhas) {
+    const nome = produto.produtor?.nome || 'Produtor';
+    if (!porProdutor[nome]) porProdutor[nome] = [];
+    porProdutor[nome].push({ nome: produto.nome, quantidade, preco: produto.preco });
+  }
+
+  const novas = Object.entries(porProdutor).map(([produtor, itens]) => ({
+    _id: `E-${Math.floor(1000 + Math.random() * 9000)}`,
+    produtor,
+    data: new Date().toISOString().slice(0, 10),
+    estado: 'pendente',
+    metodo,
+    linhas: itens,
+  }));
+
+  localStorage.setItem('encomendas-simuladas', JSON.stringify([...novas, ...lerEncomendasSimuladas()]));
+}
+
+// Encomendas recebidas pelo produtor (painel do produtor)
+export const encomendasRecebidas = [
+  { _id: 'E-1051', cliente: 'Tasca do Largo', data: '2026-11-12', estado: 'pendente', total: 14.4 },
+  { _id: 'E-1049', cliente: 'Restaurante Lima', data: '2026-11-11', estado: 'confirmada', total: 36.0 },
+  { _id: 'E-1042', cliente: 'Tasca do Largo', data: '2026-11-10', estado: 'pronta', total: 9.6 },
+  { _id: 'E-1030', cliente: 'Mercearia do Centro', data: '2026-11-04', estado: 'entregue', total: 52.8 },
 ];
