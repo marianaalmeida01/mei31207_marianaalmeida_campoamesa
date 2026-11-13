@@ -2,13 +2,15 @@
 openapi: 3.0.3
 info:
   title: Do Campo à Mesa API
-  version: 0.2.0
+  version: 0.3.0
   description: API REST do mercado digital de produtores locais do Alto Minho.
 servers:
   - url: http://localhost:3000/api
 tags:
   - name: Autenticação
   - name: Produtos
+  - name: Produtores
+  - name: Encomendas
 paths:
   /auth/registo:
     post:
@@ -120,6 +122,106 @@ paths:
         '204': { description: Removido }
         '401': { description: Token em falta ou inválido }
         '404': { description: Não encontrado (ou não pertence a este produtor) }
+  /producers:
+    get:
+      tags: [Produtores]
+      summary: Listar produtores validados
+      parameters:
+        - { name: localidade, in: query, schema: { type: string }, example: Ponte de Lima }
+      responses:
+        '200':
+          description: Lista de produtores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Produtor' }
+  /producers/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Produtores]
+      summary: Página pública do produtor (dados, produtos e avaliação média)
+      responses:
+        '200':
+          description: Produtor com os seus produtos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaProdutor' }
+        '400': { description: Identificador inválido }
+        '404': { description: Produtor não encontrado }
+  /orders:
+    post:
+      tags: [Encomendas]
+      summary: Criar encomenda (comprador). É criada uma encomenda por produtor.
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EncomendaInput' }
+      responses:
+        '201':
+          description: Encomendas criadas (uma por produtor)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Encomenda' }
+        '400': { description: Dados inválidos }
+        '401': { description: Token em falta ou inválido }
+        '403': { description: Utilizador não é comprador }
+        '409': { description: Stock insuficiente }
+    get:
+      tags: [Encomendas]
+      summary: Listar as encomendas do utilizador (feitas, se comprador; recebidas, se produtor)
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Lista de encomendas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Encomenda' }
+        '401': { description: Token em falta ou inválido }
+  /orders/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Encomendas]
+      summary: Detalhe de uma encomenda (comprador, produtor dela ou admin)
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Encomenda
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Encomenda' }
+        '401': { description: Token em falta ou inválido }
+        '404': { description: Não encontrada }
+  /orders/{id}/estado:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      tags: [Encomendas]
+      summary: Avançar o estado da encomenda (produtor dela). Notifica o comprador em tempo real.
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [confirmada, pronta, entregue], example: confirmada }
+      responses:
+        '200': { description: Estado atualizado }
+        '400': { description: Estado inválido ou a recuar }
+        '401': { description: Token em falta ou inválido }
+        '403': { description: Utilizador não é produtor }
+        '404': { description: Não encontrada (ou não é deste produtor) }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -182,3 +284,71 @@ components:
             _id: { type: string }
             produtor: { type: object, description: Produtor (nome e localidade) }
             imagemUrl: { type: string }
+    Produtor:
+      type: object
+      properties:
+        _id: { type: string }
+        nome: { type: string, example: Horta da Ribeira }
+        produtor:
+          type: object
+          properties:
+            nomeExploracao: { type: string }
+            localidade: { type: string }
+            descricao: { type: string }
+            validado: { type: boolean }
+    PaginaProdutor:
+      type: object
+      properties:
+        produtor: { $ref: '#/components/schemas/Produtor' }
+        produtos:
+          type: array
+          items: { $ref: '#/components/schemas/Product' }
+        avaliacaoMedia: { type: number, nullable: true, example: 4.8 }
+        numAvaliacoes: { type: integer, example: 12 }
+    EncomendaInput:
+      type: object
+      required: [linhas]
+      properties:
+        linhas:
+          type: array
+          items:
+            type: object
+            required: [produto, quantidade]
+            properties:
+              produto: { type: string, description: Id do produto, example: COLE-AQUI-O-ID-DE-UM-PRODUTO }
+              quantidade: { type: integer, minimum: 1, example: 2 }
+        entrega:
+          type: object
+          properties:
+            tipo: { type: string, enum: [levantamento, entrega], example: levantamento }
+            morada: { type: string, description: Obrigatória se tipo = entrega }
+    Encomenda:
+      type: object
+      properties:
+        _id: { type: string }
+        comprador: { type: object }
+        produtor: { type: object }
+        linhas:
+          type: array
+          items:
+            type: object
+            properties:
+              produto: { type: string }
+              nome: { type: string }
+              precoUnit: { type: number }
+              quantidade: { type: integer }
+        total: { type: number }
+        estado: { type: string, enum: [pendente, confirmada, pronta, entregue] }
+        historico:
+          type: array
+          items:
+            type: object
+            properties:
+              estado: { type: string }
+              em: { type: string, format: date-time }
+        entrega:
+          type: object
+          properties:
+            tipo: { type: string }
+            morada: { type: string }
+        createdAt: { type: string, format: date-time }
