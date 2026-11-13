@@ -1,4 +1,4 @@
-// Comprador: carrinho e finalização da encomenda
+// Comprador: carrinho e finalização da encomenda (POST /api/orders)
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCarrinho } from '../context/CarrinhoContext.jsx';
@@ -18,20 +18,29 @@ export default function Carrinho() {
   const { token } = useAuth();
   const navigate = useNavigate();
   const [metodo, setMetodo] = useState('levantamento');
+  const [morada, setMorada] = useState('');
   const [erro, setErro] = useState('');
   const [aEnviar, setAEnviar] = useState(false);
 
   async function encomendar() {
     setErro('');
+    if (metodo === 'entrega' && !morada.trim()) {
+      setErro('Indique a morada para a entrega ao domicílio.');
+      return;
+    }
     setAEnviar(true);
     try {
       if (USAR_DADOS_SIMULADOS) {
         guardarEncomendasSimuladas(linhas, metodo);
       } else {
-        // Passo 3: a API cria uma encomenda por produtor (ajustamos na Aula 9)
+        // A API cria uma encomenda por produtor e desconta o stock
         await api('/orders', {
-          metodo: 'POST', token,
-          corpo: { metodo, linhas: linhas.map((l) => ({ produto: l.produto._id, quantidade: l.quantidade })) },
+          metodo: 'POST',
+          token,
+          corpo: {
+            linhas: linhas.map((l) => ({ produto: l.produto._id, quantidade: l.quantidade })),
+            entrega: { tipo: metodo, morada: metodo === 'entrega' ? morada.trim() : undefined },
+          },
         });
       }
       esvaziar();
@@ -94,6 +103,14 @@ export default function Carrinho() {
               </div>
             ))}
           </fieldset>
+
+          {metodo === 'entrega' && (
+            <>
+              <label htmlFor="morada" className="form-label">Morada de entrega</label>
+              <textarea id="morada" className="form-control mb-3" rows={2} required
+                value={morada} onChange={(e) => setMorada(e.target.value)} />
+            </>
+          )}
 
           <p className="d-flex justify-content-between fw-bold fs-5">
             <span>Total</span><span>{euro(total)}</span>

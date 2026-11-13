@@ -11,10 +11,9 @@ export const COORDENADAS = {
   'Viana do Castelo': { lat: 41.693, lng: -8.832 },
   'Vila Nova de Cerveira': { lat: 41.940, lng: -8.743 },
 };
- 
+
 // Endereço do mapa do OpenStreetMap (não precisa de chave). Sem coordenadas, usa o centro do Alto Minho.
 export function urlMapa(localidade, localizacao) {
   const { lat, lng } = (localizacao?.lat && localizacao) || COORDENADAS[localidade] || { lat: 41.85, lng: -8.55 };
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.06},${lat - 0.04},${lng + 0.06},${lat + 0.04}&layer=mapnik&marker=${lat},${lng}`;
 }
- 
