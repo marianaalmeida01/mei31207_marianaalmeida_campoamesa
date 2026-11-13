@@ -81,3 +81,14 @@
 
   &__valor { font-size: 1.6rem; font-weight: 700; margin: 0; }
 }
+
+// Formulário "Adicionar produto": campos empilhados no telemóvel, em grelha a partir de md
+.novo-produto__campos {
+  display: grid;
+  gap: .5rem;
+  @include a-partir-de(md) { grid-template-columns: repeat(3, 1fr); }
+  @include a-partir-de(xl) {
+    grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr auto auto;
+    align-items: center;
+  }
+}
