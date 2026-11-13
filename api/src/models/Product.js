@@ -1,6 +1,7 @@
 const { Schema, model, Types } = require('mongoose');
 
 const productSchema = new Schema({
+  // Referência ao produtor (linking): o produtor existe por si e tem muitos produtos
   produtor: { type: Types.ObjectId, ref: 'User', required: true },
   nome: { type: String, required: true, trim: true },
   categoria: {
@@ -14,10 +15,10 @@ const productSchema = new Schema({
   biologico: { type: Boolean, default: false },
   epocas: [{ type: String, enum: ['Primavera', 'Verão', 'Outono', 'Inverno'] }],
   imagemUrl: String // Passo 8: URL da imagem no storage da Cloud
-  // TODO (Passo 4): avaliação média? índices para pesquisa?
 }, { timestamps: true });
 
-// TODO (Passo 4): criar índices adequados às pesquisas, p. ex.:
-// productSchema.index({ nome: 'text' });
+// Passo 4: índices para as pesquisas mais frequentes do catálogo
+productSchema.index({ categoria: 1, preco: 1 }); // filtro por categoria + preço máximo
+productSchema.index({ produtor: 1 });            // produtos de um produtor (página pública e painel)
 
 module.exports = model('Product', productSchema);
