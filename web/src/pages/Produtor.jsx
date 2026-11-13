@@ -9,16 +9,26 @@ import { urlMapa } from '../data/localidades.js';
 
 export default function Produtor() {
   const { id } = useParams(); // o ":id" do endereço /produtores/:id
-  const { utilizador } = useAuth();
+  const { utilizador, token } = useAuth();
   const carrinho = useCarrinho();
   const [pagina, setPagina] = useState(null); // { produtor, produtos, avaliacaoMedia, numAvaliacoes }
   const [erro, setErro] = useState('');
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [denunciadas, setDenunciadas] = useState([]);
 
   useEffect(() => {
     setPagina(null);
     setErro('');
     api(`/producers/${id}`).then(setPagina).catch((e) => setErro(e.message));
+    api(`/reviews?produtor=${id}`).then(setAvaliacoes).catch(() => setAvaliacoes([]));
   }, [id]);
+
+  async function denunciar(reviewId) {
+    try {
+      await api(`/reviews/${reviewId}/denuncia`, { metodo: 'POST', token });
+      setDenunciadas((l) => [...l, reviewId]);
+    } catch { /* a denúncia é opcional; ignora erros */ }
+  }
 
   if (erro) {
     return (
@@ -66,6 +76,26 @@ export default function Produtor() {
             onAdicionar={utilizador?.papel === 'comprador' ? () => carrinho.adicionar(p) : undefined} />
         ))}
       </section>
+
+      <h2 className="h4 mt-5 mb-3">Avaliações</h2>
+      {avaliacoes.length === 0 ? (
+        <p className="texto-secundario">Ainda ninguém avaliou este produtor.</p>
+      ) : (
+        <ul className="list-group">
+          {avaliacoes.map((r) => (
+            <li key={r._id} className="list-group-item">
+              <div className="d-flex justify-content-between flex-wrap gap-2">
+                <span><span className="avaliacao-media">{r.classificacao}</span> · <strong>{r.autor?.nome}</strong></span>
+                <span className="small texto-secundario">{new Date(r.createdAt).toLocaleDateString('pt-PT')}</span>
+              </div>
+              {r.comentario && <p className="mb-1 mt-1">{r.comentario}</p>}
+              {utilizador && (denunciadas.includes(r._id)
+                ? <span className="small texto-secundario">Denúncia enviada</span>
+                : <button type="button" className="btn btn-link btn-sm p-0 text-danger" onClick={() => denunciar(r._id)}>Denunciar</button>)}
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }

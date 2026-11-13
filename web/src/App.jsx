@@ -2,6 +2,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import BarraInferior from './components/BarraInferior.jsx';
+import Notificacoes from './components/Notificacoes.jsx';
 import RotaProtegida from './components/RotaProtegida.jsx';
 import Catalogo from './pages/Catalogo.jsx';
 import Produtor from './pages/Produtor.jsx';
@@ -51,6 +52,7 @@ export default function App() {
         </Routes>
       </main>
       <BarraInferior />
+      <Notificacoes />
     </>
   );
 }

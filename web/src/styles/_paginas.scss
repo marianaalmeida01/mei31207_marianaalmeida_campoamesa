@@ -92,3 +92,24 @@
     align-items: center;
   }
 }
+
+// Notificações: em baixo (por cima da barra inferior) no telemóvel, no canto superior direito no computador
+.zona-notificacoes {
+  position: fixed;
+  z-index: 1080;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: .5rem;
+
+  @include a-partir-de(md) { left: auto; width: 22rem; }
+  @include a-partir-de(lg) { top: 5rem; bottom: auto; }
+}
+
+.notificacao { border-left: 4px solid $verde; }
+
+// Painel do administrador: 6 indicadores numa linha nos ecrãs grandes
+.indicadores--admin {
+  @include a-partir-de(xl) { grid-template-columns: repeat(6, 1fr); }
+}

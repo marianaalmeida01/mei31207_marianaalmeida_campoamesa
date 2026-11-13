@@ -1,4 +1,4 @@
-// Visitante: página inicial com destaque, leilão em direto, filtros e catálogo
+// Visitante: página inicial com destaque, leilão em direto, filtros e catálogo (GET /api/products)
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CartaoProduto from '../components/CartaoProduto.jsx';
@@ -6,21 +6,11 @@ import DestaqueLeilao from '../components/DestaqueLeilao.jsx';
 import { useCarrinho } from '../context/CarrinhoContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api, USAR_DADOS_SIMULADOS } from '../api/client.js';
+import { normalizarLeilao } from '../hooks/useLeilao.js';
+import { leiloes as leiloesSimulados } from '../data/simulados.js';
 import produtosSimulados from '../data/produtos.json';
 
 const CATEGORIAS = ['Todos', 'Hortícolas', 'Fruta', 'Mel', 'Vinho', 'Queijo', 'Padaria'];
-
-// Dados simulados antes da API estar pronta; o leilão em direto é sempre o mesmo, mas os produtos podem ser filtrados
-const LEILAO_SIMULADO = {
-  _id: 'l1',
-  lote: '200 kg de kiwi Hayward, calibre A',
-  produtor: 'Horta da Ribeira',
-  localidade: 'Ponte de Lima',
-  biologico: true,
-  valor: 312,
-  participantes: 14,
-  terminaEm: new Date(Date.now() + 3 * 60 * 1000).toISOString(),
-};
 
 export default function Catalogo() {
   const [produtos, setProdutos] = useState([]);
@@ -28,6 +18,15 @@ export default function Catalogo() {
   const [erro, setErro] = useState('');
   const carrinho = useCarrinho();
   const { utilizador } = useAuth();
+  // Leilão em destaque: o primeiro a terminar dos que estão a decorrer
+  const [destaque, setDestaque] = useState(USAR_DADOS_SIMULADOS ? leiloesSimulados[0] : null);
+
+  useEffect(() => {
+    if (USAR_DADOS_SIMULADOS) return;
+    api('/auctions?estado=ativo')
+      .then((lista) => setDestaque(lista[0] ? normalizarLeilao(lista[0]) : null))
+      .catch(() => setDestaque(null));
+  }, []);
 
   useEffect(() => {
     if (USAR_DADOS_SIMULADOS) {
@@ -59,7 +58,7 @@ export default function Catalogo() {
             <Link to="/registo" className="btn btn-outline-secondary rounded-pill px-4">Sou produtor</Link>
           </div>
         </div>
-        <DestaqueLeilao leilao={LEILAO_SIMULADO} />
+        {destaque && <DestaqueLeilao leilao={destaque} />}
       </section>
 
       <section className="filtros mb-3" aria-label="Filtros">

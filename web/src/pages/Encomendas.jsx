@@ -1,4 +1,4 @@
-// Comprador: acompanhamento das encomendas (GET /api/orders)
+// Comprador: acompanhamento das encomendas (GET /api/orders), atualizado em tempo real
 import { useEffect, useState } from 'react';
 import EstadoEncomenda from '../components/EstadoEncomenda.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -6,6 +6,49 @@ import { api, USAR_DADOS_SIMULADOS } from '../api/client.js';
 import { encomendasExemplo, lerEncomendasSimuladas } from '../data/simulados.js';
 
 const euro = (v) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+
+// Formulário para avaliar o produtor depois de a encomenda ser entregue (POST /api/reviews)
+function Avaliar({ encomendaId, token, onAvaliada }) {
+  const [aberto, setAberto] = useState(false);
+  const [classificacao, setClassificacao] = useState('5');
+  const [comentario, setComentario] = useState('');
+  const [erro, setErro] = useState('');
+  const [avaliadas, setAvaliadas] = useState([]); // ids das encomendas avaliadas nesta visita
+
+  if (!aberto) {
+    return (
+      <button type="button" className="btn btn-sm btn-outline-success mt-3" onClick={() => setAberto(true)}>
+        Avaliar o produtor
+      </button>
+    );
+  }
+
+  async function enviar(e) {
+    e.preventDefault();
+    setErro('');
+    try {
+      await api('/reviews', { metodo: 'POST', token, corpo: { encomenda: encomendaId, classificacao: Number(classificacao), comentario } });
+      onAvaliada();
+    } catch (err) {
+      setErro(err.message);
+    }
+  }
+
+  return (
+    <form className="mt-3" onSubmit={enviar}>
+      <label htmlFor={`nota-${encomendaId}`} className="form-label small">Classificação</label>
+      <select id={`nota-${encomendaId}`} className="form-select form-select-sm mb-2" value={classificacao}
+        onChange={(e) => setClassificacao(e.target.value)}>
+        {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{'★'.repeat(n)}{'☆'.repeat(5 - n)} ({n})</option>)}
+      </select>
+      <label htmlFor={`comentario-${encomendaId}`} className="form-label small">Comentário (opcional)</label>
+      <textarea id={`comentario-${encomendaId}`} className="form-control form-control-sm mb-2" rows={2}
+        value={comentario} onChange={(e) => setComentario(e.target.value)} />
+      {erro && <div className="alert alert-warning py-1 small">{erro}</div>}
+      <button type="submit" className="btn btn-sm btn-success">Enviar avaliação</button>
+    </form>
+  );
+}
 
 // Põe as encomendas da API e as simuladas no mesmo formato
 const normalizar = (e) => ({
@@ -33,6 +76,14 @@ export default function Encomendas() {
       .catch((e) => setErro(e.message));
   }, [token]);
 
+  // Passo 7: quando o produtor muda o estado, a encomenda atualiza-se aqui sem recarregar a página
+  useEffect(() => {
+    const atualizar = (ev) => setEncomendas((lista) => lista?.map((e) =>
+      (String(e.id) === String(ev.detail.id) ? { ...e, estado: ev.detail.estado } : e)));
+    window.addEventListener('encomenda-atualizada', atualizar);
+    return () => window.removeEventListener('encomenda-atualizada', atualizar);
+  }, []);
+
   return (
     <>
       <h1>As minhas encomendas</h1>
@@ -56,6 +107,10 @@ export default function Encomendas() {
               {e.linhas.map((l) => <li key={l.nome}>{l.quantidade} × {l.nome}</li>)}
             </ul>
             <EstadoEncomenda estado={e.estado} />
+            {avaliadas.includes(e.id) && <p className="small text-success mt-3 mb-0">Obrigado pela sua avaliação!</p>}
+            {e.estado === 'entregue' && !USAR_DADOS_SIMULADOS && !avaliadas.includes(e.id) && (
+              <Avaliar encomendaId={e.id} token={token} onAvaliada={() => setAvaliadas((l) => [...l, e.id])} />
+            )}
           </article>
         ))}
       </div>

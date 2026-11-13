@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: Do Campo à Mesa API
-  version: 0.3.0
+  version: 1.0.0
   description: API REST do mercado digital de produtores locais do Alto Minho.
 servers:
   - url: http://localhost:3000/api
@@ -11,6 +11,9 @@ tags:
   - name: Produtos
   - name: Produtores
   - name: Encomendas
+  - name: Leilões
+  - name: Avaliações
+  - name: Administração
 paths:
   /auth/registo:
     post:
@@ -222,6 +225,150 @@ paths:
         '401': { description: Token em falta ou inválido }
         '403': { description: Utilizador não é produtor }
         '404': { description: Não encontrada (ou não é deste produtor) }
+  /auctions:
+    get:
+      tags: [Leilões]
+      summary: Listar leilões (o estado é calculado pelas datas)
+      parameters:
+        - { name: estado, in: query, schema: { type: string, enum: [ativo, agendado, terminado] } }
+        - { name: produtor, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: Lista de leilões
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Leilao' }
+    post:
+      tags: [Leilões]
+      summary: Criar leilão (produtor). Começa agora, salvo se indicar iniciaEm.
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeilaoInput' }
+      responses:
+        '201': { description: Leilão criado }
+        '400': { description: Dados inválidos }
+        '401': { description: Token em falta ou inválido }
+        '403': { description: Utilizador não é produtor }
+  /auctions/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Leilões]
+      summary: Detalhe do leilão com as últimas 20 licitações
+      responses:
+        '200': { description: Leilão e licitações }
+        '404': { description: Não encontrado }
+  /auctions/{id}/bids:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Leilões]
+      summary: Histórico completo de licitações (as licitações em si são feitas por Socket.io, evento "licitar")
+      responses:
+        '200': { description: Lista de licitações }
+  /reviews:
+    post:
+      tags: [Avaliações]
+      summary: Avaliar o produtor de uma encomenda entregue (comprador, uma vez por encomenda)
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [encomenda, classificacao]
+              properties:
+                encomenda: { type: string, description: Id da encomenda entregue }
+                classificacao: { type: integer, minimum: 1, maximum: 5, example: 5 }
+                comentario: { type: string, example: Kiwis excelentes, entrega a horas. }
+      responses:
+        '201': { description: Avaliação criada }
+        '400': { description: Classificação inválida ou encomenda ainda não entregue }
+        '404': { description: Encomenda não encontrada }
+        '409': { description: Encomenda já avaliada }
+    get:
+      tags: [Avaliações]
+      summary: Listar avaliações visíveis
+      parameters:
+        - { name: produtor, in: query, schema: { type: string } }
+        - { name: produto, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Lista de avaliações }
+  /reviews/{id}/denuncia:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      tags: [Avaliações]
+      summary: Denunciar uma avaliação (utilizador autenticado)
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '204': { description: Denúncia registada }
+        '404': { description: Não encontrada }
+  /admin/estatisticas:
+    get:
+      tags: [Administração]
+      summary: Estatísticas globais
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Utilizadores, produtores, pendentes, encomendas de hoje, leilões ativos e vendas totais }
+        '403': { description: Utilizador não é administrador }
+  /admin/produtores/pendentes:
+    get:
+      tags: [Administração]
+      summary: Produtores à espera de validação
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Lista de produtores pendentes }
+  /admin/produtores/{id}/validacao:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      tags: [Administração]
+      summary: Aprovar (true) ou rejeitar (false) um produtor
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                aprovado: { type: boolean, example: true }
+      responses:
+        '200': { description: Produtor aprovado ou removido }
+        '400': { description: Pedido inválido }
+        '404': { description: Não encontrado }
+  /admin/reviews/denunciadas:
+    get:
+      tags: [Administração]
+      summary: Avaliações denunciadas (para moderação)
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Lista de avaliações denunciadas }
+  /admin/reviews/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      tags: [Administração]
+      summary: Moderar avaliação (visivel false oculta; true mantém e limpa as denúncias)
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                visivel: { type: boolean, example: false }
+      responses:
+        '200': { description: Avaliação atualizada }
+        '404': { description: Não encontrada }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -352,3 +499,30 @@ components:
             tipo: { type: string }
             morada: { type: string }
         createdAt: { type: string, format: date-time }
+    LeilaoInput:
+      type: object
+      required: [lote, precoBase]
+      properties:
+        lote: { type: string, example: 200 kg de kiwi Hayward, calibre A }
+        quantidade: { type: string, example: 200 kg }
+        precoBase: { type: number, example: 200 }
+        incremento: { type: number, example: 5 }
+        duracaoMin: { type: integer, minimum: 1, maximum: 1440, example: 10 }
+        iniciaEm: { type: string, format: date-time, description: Opcional; por omissão começa agora }
+    Leilao:
+      type: object
+      properties:
+        _id: { type: string }
+        produtor: { type: object }
+        lote: { type: string }
+        quantidade: { type: string }
+        precoBase: { type: number }
+        incremento: { type: number }
+        licitacaoAtual:
+          type: object
+          properties:
+            valor: { type: number }
+            comprador: { type: object }
+        iniciaEm: { type: string, format: date-time }
+        terminaEm: { type: string, format: date-time }
+        estado: { type: string, enum: [agendado, ativo, terminado] }

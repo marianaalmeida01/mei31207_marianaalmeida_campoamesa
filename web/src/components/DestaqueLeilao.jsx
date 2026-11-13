@@ -11,12 +11,12 @@ export default function DestaqueLeilao({ leilao }) {
     <aside className="leilao-destaque" aria-label="Leilão em direto">
       <div className="d-flex justify-content-between align-items-center">
         <span className="leilao-destaque__estado">Leilão em direto</span>
-        <span className="small opacity-75">{leilao.participantes} compradores</span>
+        {leilao.participantes != null && <span className="small opacity-75">{leilao.participantes} compradores</span>}
       </div>
 
       <h2 className="leilao-destaque__lote">{leilao.lote}</h2>
       <p className="leilao-destaque__origem mb-0">
-        {leilao.produtor} · {leilao.localidade}{leilao.biologico && ' · Biológico'}
+        {leilao.produtor}{leilao.localidade && ` · ${leilao.localidade}`}{leilao.biologico && ' · Biológico'}
       </p>
 
       <dl className="leilao-destaque__numeros">
