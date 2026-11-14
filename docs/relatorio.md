@@ -52,6 +52,7 @@ npm run dev               # http://localhost:5173
 | Produtor | horta@exemplo.pt |
 | Produtor | mel@exemplo.pt |
 | Comprador | tasca@exemplo.pt |
+| Mariana Almeida | marianaalmeidaufba@gmail.com |
 
 O ficheiro `.env` (com a ligação à base de dados e o segredo do JWT) **não está no repositório**: está no `.gitignore`.
 
@@ -335,7 +336,7 @@ Os custos dependem do plano escolhido. Para um projeto académico com pouco trá
 
 ### Dificuldades
 
-- **Começar do zero:** foi o meu primeiro projeto de desenvolvimento web. Precisei primeiro de aprender a usar o terminal, o Node.js/npm, o Git e o VS Code.
+- **Começar do zero:** foi o meu primeiro projeto de desenvolvimento web, isso foi super desafiante pois foi uma construcao quase do zero, fazia o basico, mas nao um projeto longo e extenso. Precisei primeiro de aprender a usar o terminal, o Node.js/npm, o Git e o VS Code.
 - **Pastas e terminais:** a API e a SPA correm em terminais diferentes (`api` e `web`). Correr `npm run dev` na pasta errada foi o erro mais frequente.
 - **Ligação ao MongoDB Atlas:** configurar o utilizador, o acesso de rede e o endereço de ligação no `.env`.
 - **Tokens JWT nos testes:** copiar o token sem aspas e perceber a diferença entre 401 e 403.
